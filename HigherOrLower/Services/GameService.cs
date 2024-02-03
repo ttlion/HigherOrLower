@@ -15,10 +15,10 @@ namespace HigherOrLower.Services
             _gameEngine = gameEngine;
         }
 
-        public JsonResult? TryCreateNewGame()
+        public string? TryCreateNewGame()
         {
             var newGame = _gameEngine.TryCreateNewGame();
-            return newGame != null ? string.Format(CreateNewGameSuccessMessageTemplate, newGame.Id, newGame.NextCard).ToJsonResultWithMessage() : null;
+            return newGame != null ? string.Format(CreateNewGameSuccessMessageTemplate, newGame.Id, newGame.NextCard).ToJsonWithMessage() : null;
         }
     }
 }

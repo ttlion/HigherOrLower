@@ -4,6 +4,6 @@ namespace HigherOrLower.Services
 {
     public interface IGameService
     {
-        JsonResult? TryCreateNewGame();
+        string? TryCreateNewGame();
     }
 }

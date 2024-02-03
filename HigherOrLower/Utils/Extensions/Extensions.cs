@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Newtonsoft.Json;
 
 namespace HigherOrLower.Utils.Extensions
 {
@@ -11,7 +11,7 @@ namespace HigherOrLower.Utils.Extensions
         public static T GetRandomElement<T>(this ICollection<T> list)
             => list.ElementAt(rnd.Next(list.Count));
 
-        public static JsonResult ToJsonResultWithMessage(this string message)
-            => new JsonResult(new { Message = message });
+        public static string ToJsonWithMessage(this string message)
+            => JsonConvert.SerializeObject(new { Message = message }, Formatting.Indented);
     }
 }

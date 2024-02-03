@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HigherOrLower.Migrations
 {
     [DbContext(typeof(HigherOrLowerDbContext))]
-    [Migration("20240203135253_HigherOrLower_InitialSetup")]
-    partial class HigherOrLower_InitialSetup
+    [Migration("20240203155150_HigherOrLower_FillCardsTable")]
+    partial class HigherOrLower_FillCardsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,10 +28,7 @@ namespace HigherOrLower.Migrations
             modelBuilder.Entity("HigherOrLower.Entities.Cards.Card", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -49,7 +46,6 @@ namespace HigherOrLower.Migrations
             modelBuilder.Entity("HigherOrLower.Entities.Games.Game", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("DisplayId")
@@ -84,7 +80,6 @@ namespace HigherOrLower.Migrations
             modelBuilder.Entity("HigherOrLower.Entities.Games.Player", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("GameId")

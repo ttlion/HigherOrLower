@@ -46,6 +46,10 @@ namespace HigherOrLower.Infrastructure.Database
                 .HasKey(x => new { x.Id });
 
             modelBuilder.Entity<Card>()
+                .Property(x => x.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<Card>()
                 .Property(x => x.Name)
                 .IsRequired()
                 .HasMaxLength(100);
@@ -59,6 +63,10 @@ namespace HigherOrLower.Infrastructure.Database
         {
             modelBuilder.Entity<Game>()
                 .HasKey(x => new { x.Id });
+
+            modelBuilder.Entity<Game>()
+                .Property(x => x.Id)
+                .ValueGeneratedNever();
 
             modelBuilder.Entity<Game>()
                 .Property(x => x.DisplayId)
@@ -93,6 +101,10 @@ namespace HigherOrLower.Infrastructure.Database
         {
             modelBuilder.Entity<Player>()
                 .HasKey(x => new { x.Id });
+
+            modelBuilder.Entity<Player>()
+                .Property(x => x.Id)
+                .ValueGeneratedNever();
 
             modelBuilder.Entity<Player>()
                 .HasOne(typeof(Game))

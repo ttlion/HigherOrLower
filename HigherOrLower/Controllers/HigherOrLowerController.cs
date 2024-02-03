@@ -7,7 +7,7 @@ namespace HigherOrLower.Controllers
     public class HigherOrLowerController : ControllerBase
     {
         private readonly IGameService _gameService;
-
+            
         public HigherOrLowerController(IGameService gameService)
         {
             _gameService = gameService;
