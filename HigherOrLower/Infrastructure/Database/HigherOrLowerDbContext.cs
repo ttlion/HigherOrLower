@@ -1,21 +1,33 @@
-﻿using HigherOrLower.Entities;
+﻿using HigherOrLower.Entities.Cards;
+using HigherOrLower.Entities.Games;
 using Microsoft.EntityFrameworkCore;
 
 namespace HigherOrLower.Infrastructure.Database
 {
-    public class HigherOrLowerDbContext : DbContext
+    public class HigherOrLowerDbContext : DbContext, IHigherOrLowerDbContext
     {
         public DbSet<Card> Cards { get; set; }
+        IQueryable<Card> IHigherOrLowerDbContext.Cards => Cards;
 
         public DbSet<Game> Games { get; set; }
+        IQueryable<Game> IHigherOrLowerDbContext.Games => Games;
 
         public DbSet<GameCard> GameCards { get; set; }
+        IQueryable<GameCard> IHigherOrLowerDbContext.GameCards => GameCards;
 
         public DbSet<Player> Players { get; set; }
+
+        IQueryable<Player> IHigherOrLowerDbContext.Players => Players;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Data Source=localhost;Initial Catalog=HigherOrLower;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;");
+        }
+
+        public void InsertAndSubmit<T>(T data)
+        {
+            base.Add(data);
+            base.SaveChanges();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,7 +36,7 @@ namespace HigherOrLower.Infrastructure.Database
             ConfigureGame(modelBuilder);
             ConfigureGameCard(modelBuilder);
             ConfigurePlayer(modelBuilder);
-            
+
             base.OnModelCreating(modelBuilder);
         }
 

@@ -1,3 +1,4 @@
+using HigherOrLower.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HigherOrLower.Controllers
@@ -5,18 +6,19 @@ namespace HigherOrLower.Controllers
     [ApiController]
     public class HigherOrLowerController : ControllerBase
     {
-        private readonly ILogger<HigherOrLowerController> _logger;
+        private readonly IGameService _gameService;
 
-        public HigherOrLowerController(ILogger<HigherOrLowerController> logger)
+        public HigherOrLowerController(IGameService gameService)
         {
-            _logger = logger;
+            _gameService = gameService;
         }
 
         [Route("NewGame")]
         [HttpPost]
-        public void NewGame()
+        public ActionResult NewGame()
         {
-            // TODO
+            var result = _gameService.TryCreateNewGame();
+            return result != default ? Ok(result) : Problem();
         }
 
         [Route("Game/{gameId}/NextCard")]

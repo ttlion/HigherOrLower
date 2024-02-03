@@ -15,7 +15,8 @@ namespace HigherOrLower.Migrations
                 name: "Cards",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Value = table.Column<int>(type: "int", nullable: false)
                 },
@@ -42,7 +43,7 @@ namespace HigherOrLower.Migrations
                 columns: table => new
                 {
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CardId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CardId = table.Column<int>(type: "int", nullable: false),
                     DrawOrder = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

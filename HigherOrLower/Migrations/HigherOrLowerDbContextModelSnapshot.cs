@@ -22,11 +22,13 @@ namespace HigherOrLower.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("HigherOrLower.Entities.Card", b =>
+            modelBuilder.Entity("HigherOrLower.Entities.Cards.Card", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -41,7 +43,7 @@ namespace HigherOrLower.Migrations
                     b.ToTable("Cards");
                 });
 
-            modelBuilder.Entity("HigherOrLower.Entities.Game", b =>
+            modelBuilder.Entity("HigherOrLower.Entities.Games.Game", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -58,13 +60,13 @@ namespace HigherOrLower.Migrations
                     b.ToTable("Games");
                 });
 
-            modelBuilder.Entity("HigherOrLower.Entities.GameCard", b =>
+            modelBuilder.Entity("HigherOrLower.Entities.Games.GameCard", b =>
                 {
                     b.Property<Guid>("GameId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CardId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
 
                     b.Property<int>("DrawOrder")
                         .HasColumnType("int");
@@ -76,7 +78,7 @@ namespace HigherOrLower.Migrations
                     b.ToTable("GameCards");
                 });
 
-            modelBuilder.Entity("HigherOrLower.Entities.Player", b =>
+            modelBuilder.Entity("HigherOrLower.Entities.Games.Player", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -105,24 +107,24 @@ namespace HigherOrLower.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("HigherOrLower.Entities.GameCard", b =>
+            modelBuilder.Entity("HigherOrLower.Entities.Games.GameCard", b =>
                 {
-                    b.HasOne("HigherOrLower.Entities.Card", null)
+                    b.HasOne("HigherOrLower.Entities.Cards.Card", null)
                         .WithMany()
                         .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HigherOrLower.Entities.Game", null)
+                    b.HasOne("HigherOrLower.Entities.Games.Game", null)
                         .WithMany()
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HigherOrLower.Entities.Player", b =>
+            modelBuilder.Entity("HigherOrLower.Entities.Games.Player", b =>
                 {
-                    b.HasOne("HigherOrLower.Entities.Game", null)
+                    b.HasOne("HigherOrLower.Entities.Games.Game", null)
                         .WithMany()
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
