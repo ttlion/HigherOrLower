@@ -1,6 +1,8 @@
 ﻿using HigherOrLower.Entities.Cards;
 using HigherOrLower.Entities.Games;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.Extensions.Configuration;
 
 namespace HigherOrLower.Infrastructure.Database
 {
@@ -19,9 +21,32 @@ namespace HigherOrLower.Infrastructure.Database
 
         IQueryable<Player> IHigherOrLowerDbContext.Players => Players;
 
+        private readonly IConfiguration _configuration;
+
+        public HigherOrLowerDbContext(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=localhost;Initial Catalog=HigherOrLower;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;");
+            // Of course I should be fancier than this and put this in proper classes, etc and without magical strings :)
+            // But I think you get the point, and this is enough for the exercise :)
+
+            var databaseType = _configuration["DatabaseType"];
+
+            if (databaseType == "SqlServer")
+            {
+                optionsBuilder.UseSqlServer(_configuration["SqlServerConnectionString"]);
+            }
+            else if (databaseType == "InMemory")
+            {
+                optionsBuilder.UseInMemoryDatabase(databaseName: _configuration["InMemoryDatabaseName"]);
+            }
+            else
+            {
+                throw new Exception("Database not allowed");
+            }
         }
 
         public void InsertAndSubmit<T>(T data)
