@@ -11,6 +11,8 @@
 
         public int DisplayId { get; set; }
 
+        public bool CanAddNewPlayers { get; set; } = true;
+
         public bool IsFinished { get; set; } = false;
     }
 }

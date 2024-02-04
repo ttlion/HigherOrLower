@@ -2,16 +2,23 @@
 {
     public class Player : IPlayer
     {
-        public Guid Id { get; set; }
+        public Player(Guid gameId, string name, int orderInGame)
+        {
+            GameId = gameId;
+            Name = name;
+            OrderInGame = orderInGame;
+        }
+
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public Guid GameId { get; set; }
 
-        public int Name { get; set; }
+        public string Name { get; set; }
 
-        public int Score { get; set; }
+        public int Score { get; set; } = 0;
 
         public int OrderInGame { get; set; }
 
-        public int IsCurrentMove { get; set; }
+        public bool IsCurrentMove { get; set; } = false;
     }
 }

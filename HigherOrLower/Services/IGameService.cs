@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HigherOrLower.Utils.Enums;
 
 namespace HigherOrLower.Services
 {
     public interface IGameService
     {
-        string? TryCreateNewGame();
+        string CreateNewGame();
+
+        public string TryEvaluateGuess(int gameDisplayId, string playerName, Guess guess);
     }
 }

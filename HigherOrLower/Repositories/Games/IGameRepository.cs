@@ -7,10 +7,28 @@ namespace HigherOrLower.Repositories.Games
     {
         IGame CreateGame(int displayId);
 
-        void CreateGameCard(Guid gameId, int cardId, int drawOrder);
+        IGame? TryGetGame(int displayId);
+        
+        void MarkCannotAddNewPlayers(Guid gameId);
+        
+        void MarkGameAsFinished(Guid gameId);
         
         int GetHighestGameDisplayId();
 
-        List<int> GetAllGameCardsIds(Guid gameId);
+
+        void CreateGameCard(Guid gameId, int cardId, int drawOrder);
+
+        IList<int> GetAllGameCardsIds(Guid gameId);
+
+        int GetLatestGameCardId(Guid gameId);
+
+
+        IPlayer AddPlayerToGame(Guid gameId, string playerName, int orderInGame);
+
+        IList<IPlayer> GetAllGamePlayers(Guid gameId);
+
+        void IncrementPlayerScore(Guid playerId);
+
+        void SetPlayerIsCurrentMoveValue(Guid playerId, bool isCurrentMove);
     }
 }

@@ -1,4 +1,5 @@
 using HigherOrLower.Services;
+using HigherOrLower.Utils.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HigherOrLower.Controllers
@@ -17,22 +18,21 @@ namespace HigherOrLower.Controllers
         [HttpPost]
         public ActionResult NewGame()
         {
-            var result = _gameService.TryCreateNewGame();
-            return result != default ? Ok(result) : Problem();
+            return Ok(_gameService.CreateNewGame());
         }
 
-        [Route("Game/{gameId}/NextCard")]
+        [Route("Game/{gameId}/CurrentCard")]
         [HttpGet]
-        public void NextCard(int gameId)
+        public void CurrentCard(int gameId)
         {
             // TODO
         }
 
         [Route("Game/{gameId}/Guess")]
         [HttpPost]
-        public void Guess(int gameId)
+        public ActionResult Guess(int gameId, [FromForm] string playerName, [FromForm] Guess guess)
         {
-            // TODO
+            return Ok(_gameService.TryEvaluateGuess(gameId, playerName, guess));
         }
 
         [Route("Game/{gameId}/Score")]

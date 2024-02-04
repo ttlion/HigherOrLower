@@ -13,5 +13,8 @@ namespace HigherOrLower.Repositories
 
         protected void InsertAndSubmit<T>(T data)
             => _datacontext.InsertAndSubmit(data);
+
+        protected void SubmitChanges()
+            => _datacontext.SubmitChanges();
     }
 }

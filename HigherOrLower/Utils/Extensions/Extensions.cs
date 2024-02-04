@@ -8,8 +8,8 @@ namespace HigherOrLower.Utils.Extensions
      
         // Kind of an overkill for this small project,
         // but just to show that I know extensions and generics :)
-        public static T GetRandomElement<T>(this ICollection<T> list)
-            => list.ElementAt(rnd.Next(list.Count));
+        public static T GetRandomElement<T>(this ICollection<T> collection)
+            => collection.ElementAt(rnd.Next(collection.Count));
 
         public static string ToJsonWithMessage(this string message)
             => JsonConvert.SerializeObject(new { Message = message }, Formatting.Indented);

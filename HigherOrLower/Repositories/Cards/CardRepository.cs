@@ -12,10 +12,19 @@ namespace HigherOrLower.Repositories.Cards
             _cardsTable = dc.Cards;
         }
 
-        public ICard GetCard(int cardId)
-            => _cardsTable.First(x => x.Id == cardId);
-
         public int GetTotalNumberOfCards()
-            => _cardsTable.Count();
+        {
+            return _cardsTable.Count();
+        }
+
+        public ICard GetCard(int cardId)
+        {
+            return _cardsTable.First(x => x.Id == cardId);
+        }
+
+        public IDictionary<int, ICard> GetCards(List<int> cardIds)
+        {
+            return _cardsTable.Where(x => cardIds.Contains(x.Id)).ToDictionary(x => x.Id, x => x as ICard);
+        }
     }
 }

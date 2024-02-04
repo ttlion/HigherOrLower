@@ -30,6 +30,11 @@ namespace HigherOrLower.Infrastructure.Database
             base.SaveChanges();
         }
 
+        public void SubmitChanges()
+        {
+            base.SaveChanges();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ConfigureCard(modelBuilder);

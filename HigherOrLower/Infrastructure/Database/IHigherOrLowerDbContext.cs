@@ -14,5 +14,7 @@ namespace HigherOrLower.Infrastructure.Database
         IQueryable<Player> Players { get; }
 
         void InsertAndSubmit<T>(T data);
+
+        void SubmitChanges();
     }
 }

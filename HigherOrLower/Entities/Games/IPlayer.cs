@@ -3,11 +3,16 @@ namespace HigherOrLower.Entities.Games
 {
     public interface IPlayer
     {
-        Guid GameId { get; set; }
         Guid Id { get; set; }
-        int IsCurrentMove { get; set; }
-        int Name { get; set; }
-        int OrderInGame { get; set; }
+        
+        Guid GameId { get; set; }
+
+        string Name { get; set; }
+
         int Score { get; set; }
+        
+        int OrderInGame { get; set; }
+
+        bool IsCurrentMove { get; set; }
     }
 }

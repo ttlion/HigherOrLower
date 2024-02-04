@@ -2,13 +2,19 @@
 {
     public class GameWithNextCardDto
     {
-        public int Id { get; set; }
-        public string NextCard { get; set; }
+        public int Id { get; }
 
-        public GameWithNextCardDto(int id, string nextCard)
+        public string NextCard { get; }
+
+        public bool IsLastCard { get; }
+
+        public GameWithNextCardDto() : this (-1, string.Empty, false) { }
+
+        public GameWithNextCardDto(int id, string nextCard, bool isLastCard)
         {
             Id = id;
             NextCard = nextCard;
+            IsLastCard = isLastCard;
         }
     }
 }

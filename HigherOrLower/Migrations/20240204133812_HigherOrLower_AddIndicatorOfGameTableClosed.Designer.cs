@@ -4,6 +4,7 @@ using HigherOrLower.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HigherOrLower.Migrations
 {
     [DbContext(typeof(HigherOrLowerDbContext))]
-    partial class HigherOrLowerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240204133812_HigherOrLower_AddIndicatorOfGameTableClosed")]
+    partial class HigherOrLower_AddIndicatorOfGameTableClosed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

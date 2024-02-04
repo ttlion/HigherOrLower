@@ -4,6 +4,7 @@ using HigherOrLower.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HigherOrLower.Migrations
 {
     [DbContext(typeof(HigherOrLowerDbContext))]
-    partial class HigherOrLowerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240204130648_HigherOrLower_FixDataTypes")]
+    partial class HigherOrLower_FixDataTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,9 +47,6 @@ namespace HigherOrLower.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("CanAddNewPlayers")
-                        .HasColumnType("bit");
 
                     b.Property<int>("DisplayId")
                         .HasColumnType("int");
