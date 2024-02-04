@@ -28,14 +28,14 @@ namespace HigherOrLower.Repositories.Games
             return _gamesTable.FirstOrDefault(x => x.DisplayId == displayId);
         }
 
-        public void MarkCannotAddNewPlayers(Guid gameId)
+        public void MarkGameCannotAddNewPlayers(Guid gameId)
         {
             var game = _gamesTable.First(x => x.Id == gameId);
             game.CanAddNewPlayers = false;
             SubmitChanges();
         }
 
-        public void MarkGameAsFinished(Guid gameId)
+        public void MarkGameFinished(Guid gameId)
         {
             var game = _gamesTable.First(x => x.Id == gameId);
             game.IsFinished = true;

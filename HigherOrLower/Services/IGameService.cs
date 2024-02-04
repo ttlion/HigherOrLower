@@ -7,5 +7,7 @@ namespace HigherOrLower.Services
         string CreateNewGame();
 
         public string TryEvaluateGuess(int gameDisplayId, string playerName, Guess guess);
+     
+        public string GetGameInfo(int gameDisplayId);
     }
 }

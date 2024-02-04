@@ -6,8 +6,10 @@ namespace HigherOrLower.Engines
 {
     public interface IGameEngine
     {
-        GameWithNextCardDto CreateNewGame();
-        
-        ResultWithStatus<GameWithNextCardAndGuessResultDto, EvaluateGuessStatus> TryDrawNextCardAndEvaluateGuess(int gameDisplayId, string playerName, Guess guess);
+        IResultWithStatus<GameInfoDto, CreateNewGameStatus> CreateNewGame();
+
+        IResultWithStatus<GameInfoWithGuessResultDto, EvaluateGuessStatus> TryDrawNextCardAndEvaluateGuess(int gameDisplayId, string playerName, Guess guess);
+
+        IResultWithStatus<GameInfoWithPlayersInfoDto, GetGameInfoStatus> TryGetGameInfo(int gameDisplayId);
     }
 }

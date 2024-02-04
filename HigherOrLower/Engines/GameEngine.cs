@@ -10,6 +10,10 @@ namespace HigherOrLower.Engines
 {
     public class GameEngine : IGameEngine
     {
+        // I chose to have the GameEngine methods returning directly the DTOs that are displayed in by the API for simplicity.
+        // If wanted to be 100% purist on this issue, I would have set of Dtos returned by the engine, and would create converters to convert from those engine's DTOs to the DTOs displayed by the API.
+        // However, I also want to have what remains of my Sunday to have some rest :)
+
         private readonly IGameRepository _gameRepository;
         private readonly ICardRepository _cardRepository;
 
@@ -19,7 +23,7 @@ namespace HigherOrLower.Engines
             _cardRepository = cardRepository;
         }
 
-        public GameWithNextCardDto CreateNewGame()
+        public IResultWithStatus<GameInfoDto, CreateNewGameStatus> CreateNewGame()
         {
             // could put this logic to generate the next displayId directly on DB
             // with some identity() field, but wanted to put it in the engine
@@ -33,21 +37,21 @@ namespace HigherOrLower.Engines
 
             var nextCard = _cardRepository.GetCard(nextCardId);
 
-            return new GameWithNextCardDto(newGame.DisplayId, nextCard.Name, isLastCard);
+            return SuccessResultCreateNewGame(new GameInfoDto(newGame.DisplayId, nextCard.Name, isLastCard));
         }
 
-        public ResultWithStatus<GameWithNextCardAndGuessResultDto, EvaluateGuessStatus> TryDrawNextCardAndEvaluateGuess(int gameDisplayId, string playerName, Guess guess)
+        public IResultWithStatus<GameInfoWithGuessResultDto, EvaluateGuessStatus> TryDrawNextCardAndEvaluateGuess(int gameDisplayId, string playerName, Guess guess)
         {
             var game = _gameRepository.TryGetGame(gameDisplayId);
 
             if (game == null)
             {
-                return EvaluateGuessResultError(EvaluateGuessStatus.ErrorGameDoesNotExist);
+                return ErrorResultEvaluateGuess(EvaluateGuessStatus.ErrorGameDoesNotExist);
             }
 
             if (game.IsFinished)
             {
-                return EvaluateGuessResultError(EvaluateGuessStatus.ErrorGameIsFinished);
+                return ErrorResultEvaluateGuess(EvaluateGuessStatus.ErrorGameIsFinished);
             }
 
             var allPlayers = _gameRepository.GetAllGamePlayers(game.Id);
@@ -58,7 +62,7 @@ namespace HigherOrLower.Engines
 
             if (status != EvaluateGuessStatus.Success)
             {
-                return EvaluateGuessResultError(status);
+                return ErrorResultEvaluateGuess(status);
             }
 
             var previousGameCardId = _gameRepository.GetLatestGameCardId(game.Id);
@@ -75,12 +79,33 @@ namespace HigherOrLower.Engines
 
             UpdateCurrentPlayer(allPlayers);
 
-            return EvaluateGuessResultSuccess(new GameWithNextCardAndGuessResultDto(game.DisplayId, currentCard.Name, currentCardIsLastCard, guessResult));
+            return SuccessResultEvaluateGuess(new GameInfoWithGuessResultDto(game.DisplayId, currentCard.Name, currentCardIsLastCard, guessResult));
+        }
+
+        public IResultWithStatus<GameInfoWithPlayersInfoDto, GetGameInfoStatus> TryGetGameInfo(int gameDisplayId)
+        {
+            var game = _gameRepository.TryGetGame(gameDisplayId);
+
+            if (game == null)
+            {
+                return ErrorResultTryGetGameInfo(GetGameInfoStatus.ErrorGameDoesNotExist);
+            }
+
+            var players = _gameRepository
+                .GetAllGamePlayers(game.Id)
+                .OrderBy(x => x.OrderInGame)
+                .Select(x => new PlayerInfoDto(x.Name, x.Score, x.OrderInGame, !game.IsFinished && x.IsCurrentMove))
+                .ToList();
+
+            var currentCardId = _gameRepository.GetLatestGameCardId(game.Id);
+            var currentCard = _cardRepository.GetCard(currentCardId);
+
+            return SuccessResultTryGetGameInfo(new GameInfoWithPlayersInfoDto(game.DisplayId, currentCard.Name, game.IsFinished, players));
         }
 
         private (bool IsLastCard, int CardId) DrawNextGameCard(Guid gameId)
         {
-            // could have made this some static readonly int, but wanted to keep this generic (for example, if, in the future,
+            // Could have made this some static readonly int, but wanted to keep this generic (for example, if, in the future,
             // we want more than 1 deck, just need to add the cards to the db, this code remains the same)
             var totalNumberOfCards = _cardRepository.GetTotalNumberOfCards();
 
@@ -96,7 +121,7 @@ namespace HigherOrLower.Engines
 
             if (isLastCard)
             {
-                _gameRepository.MarkGameAsFinished(gameId);
+                _gameRepository.MarkGameFinished(gameId);
             }
 
             return (isLastCard, nextCardId);
@@ -113,7 +138,7 @@ namespace HigherOrLower.Engines
                     return EvaluateGuessStatus.ErrorNotProperPlayerToCloseTable;
                 }
 
-                _gameRepository.MarkCannotAddNewPlayers(gameId);
+                _gameRepository.MarkGameCannotAddNewPlayers(gameId);
                 player.IsCurrentMove = true;
                 return EvaluateGuessStatus.Success;
             }
@@ -174,14 +199,39 @@ namespace HigherOrLower.Engines
             _gameRepository.SetPlayerIsCurrentMoveValue(orderedPlayers[positionOfNextPlayer].Id, true);
         }
 
-        private static ResultWithStatus<GameWithNextCardAndGuessResultDto, EvaluateGuessStatus> EvaluateGuessResultError(EvaluateGuessStatus errorStatus)
+        private static ResultWithStatus<GameInfoDto, CreateNewGameStatus> SuccessResultCreateNewGame(GameInfoDto result)
         {
-            return ResultWithStatus<GameWithNextCardAndGuessResultDto, EvaluateGuessStatus>.Error(errorStatus);
+            return ResultWithStatusSuccess(result, CreateNewGameStatus.Success);
         }
 
-        private static ResultWithStatus<GameWithNextCardAndGuessResultDto, EvaluateGuessStatus> EvaluateGuessResultSuccess(GameWithNextCardAndGuessResultDto result)
+        private static ResultWithStatus<GameInfoWithGuessResultDto, EvaluateGuessStatus> SuccessResultEvaluateGuess(GameInfoWithGuessResultDto result)
         {
-            return ResultWithStatus<GameWithNextCardAndGuessResultDto, EvaluateGuessStatus>.Success(result, EvaluateGuessStatus.Success);
+            return ResultWithStatusSuccess(result, EvaluateGuessStatus.Success);
+        }
+
+        private static ResultWithStatus<GameInfoWithPlayersInfoDto, GetGameInfoStatus> SuccessResultTryGetGameInfo(GameInfoWithPlayersInfoDto result)
+        {
+            return ResultWithStatusSuccess(result, GetGameInfoStatus.Success);
+        }
+
+        private static ResultWithStatus<T, U> ResultWithStatusSuccess<T, U>(T result, U status) where T : new()
+        {
+            return ResultWithStatus<T, U>.Success(result, status);
+        }
+
+        private static ResultWithStatus<GameInfoWithGuessResultDto, EvaluateGuessStatus> ErrorResultEvaluateGuess(EvaluateGuessStatus errorStatus)
+        {
+            return ResultWithStatusError<GameInfoWithGuessResultDto, EvaluateGuessStatus>(errorStatus);
+        }
+
+        private static ResultWithStatus<GameInfoWithPlayersInfoDto, GetGameInfoStatus> ErrorResultTryGetGameInfo(GetGameInfoStatus errorStatus)
+        {
+            return ResultWithStatusError<GameInfoWithPlayersInfoDto, GetGameInfoStatus>(errorStatus);
+        }
+
+        private static ResultWithStatus<T, U> ResultWithStatusError<T, U>(U errorStatus) where T : new()
+        {
+            return ResultWithStatus<T, U>.Error(errorStatus);
         }
     }
 }

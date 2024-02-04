@@ -14,33 +14,25 @@ namespace HigherOrLower.Controllers
             _gameService = gameService;
         }
 
-        [Route("NewGame")]
+        [Route("[Action]")]
         [HttpPost]
         public ActionResult NewGame()
         {
             return Ok(_gameService.CreateNewGame());
         }
 
-        [Route("Game/{gameId}/CurrentCard")]
-        [HttpGet]
-        public void CurrentCard(int gameId)
-        {
-            // TODO
-        }
-
-        [Route("Game/{gameId}/Guess")]
+        [Route("Game/{gameId}/[Action]")]
         [HttpPost]
         public ActionResult Guess(int gameId, [FromForm] string playerName, [FromForm] Guess guess)
         {
             return Ok(_gameService.TryEvaluateGuess(gameId, playerName, guess));
         }
 
-        [Route("Game/{gameId}/Score")]
+        [Route("Game/{gameId}/[Action]")]
         [HttpGet]
-        public void Score(int gameId)
+        public ActionResult GameInfo(int gameId)
         {
-            // TODO
+            return Ok(_gameService.GetGameInfo(gameId));
         }
-
     }
 }

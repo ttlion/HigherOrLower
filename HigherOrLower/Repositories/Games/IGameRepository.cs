@@ -9,9 +9,9 @@ namespace HigherOrLower.Repositories.Games
 
         IGame? TryGetGame(int displayId);
         
-        void MarkCannotAddNewPlayers(Guid gameId);
+        void MarkGameCannotAddNewPlayers(Guid gameId);
         
-        void MarkGameAsFinished(Guid gameId);
+        void MarkGameFinished(Guid gameId);
         
         int GetHighestGameDisplayId();
 
