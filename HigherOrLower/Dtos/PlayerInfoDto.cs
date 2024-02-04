@@ -2,13 +2,13 @@
 {
     public class PlayerInfoDto
     {
-        public string Name { get; }
+        public string Name { get; set; }
 
-        public int Score { get; }
+        public int Score { get; set; }
         
-        public int OrderInGame { get; }
+        public int OrderInGame { get; set; }
         
-        public bool IsCurrentPlayerToMove { get; }
+        public bool IsCurrentPlayerToMove { get; set; }
 
         public PlayerInfoDto(string name, int score, int orderInGame, bool isCurrentPlayerToMove)
         {

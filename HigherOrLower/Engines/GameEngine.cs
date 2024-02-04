@@ -37,7 +37,7 @@ namespace HigherOrLower.Engines
 
             var nextCard = _cardRepository.GetCard(nextCardId);
 
-            return SuccessResultCreateNewGame(new GameInfoDto(newGame.DisplayId, nextCard.Name, isLastCard));
+            return SuccessResultCreateNewGame(new GameInfoDto(newGame.DisplayId, nextCard.Name, !isLastCard, isLastCard));
         }
 
         public IResultWithStatus<GameInfoWithGuessResultDto, EvaluateGuessStatus> TryDrawNextCardAndEvaluateGuess(int gameDisplayId, string playerName, Guess guess)
@@ -79,7 +79,7 @@ namespace HigherOrLower.Engines
 
             UpdateCurrentPlayer(allPlayers);
 
-            return SuccessResultEvaluateGuess(new GameInfoWithGuessResultDto(game.DisplayId, currentCard.Name, currentCardIsLastCard, guessResult));
+            return SuccessResultEvaluateGuess(new GameInfoWithGuessResultDto(game.DisplayId, currentCard.Name, game.CanAddNewPlayers, currentCardIsLastCard, guessResult));
         }
 
         public IResultWithStatus<GameInfoWithPlayersInfoDto, GetGameInfoStatus> TryGetGameInfo(int gameDisplayId)
@@ -100,7 +100,7 @@ namespace HigherOrLower.Engines
             var currentCardId = _gameRepository.GetLatestGameCardId(game.Id);
             var currentCard = _cardRepository.GetCard(currentCardId);
 
-            return SuccessResultTryGetGameInfo(new GameInfoWithPlayersInfoDto(game.DisplayId, currentCard.Name, game.IsFinished, players));
+            return SuccessResultTryGetGameInfo(new GameInfoWithPlayersInfoDto(game.DisplayId, currentCard.Name, game.CanAddNewPlayers, game.IsFinished, players));
         }
 
         private (bool IsLastCard, int CardId) DrawNextGameCard(Guid gameId)

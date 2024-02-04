@@ -63,8 +63,8 @@ namespace HigherOrLower.Services
         {
             return getPlayersScoresStatus switch
             {
-                GetGameInfoStatus.ErrorGameDoesNotExist => $"Cannot make guess because game {gameDisplayId} does not exist",
-                _ => $"Error getting players' scores for game {gameDisplayId} (check GameInfo endpoint)",
+                GetGameInfoStatus.ErrorGameDoesNotExist => $"Cannot get game info because game {gameDisplayId} does not exist",
+                _ => $"Error getting game's info for game {gameDisplayId}",
             };
         }
     }
