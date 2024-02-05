@@ -3,6 +3,7 @@ using HigherOrLower.Infrastructure.Database;
 using HigherOrLower.Repositories.Cards;
 using HigherOrLower.Repositories.Games;
 using HigherOrLower.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -43,5 +44,16 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+// Shouldn't really do this :) Is just a hacky way of running pending migrations so that I don't have to check how to run migrations inside the docker.
+using (var scope = app.Services.CreateScope())
+{
+    var higherOrLowerDbContext = (HigherOrLowerDbContext) scope.ServiceProvider.GetRequiredService<IHigherOrLowerDbContext>();
+
+    if (higherOrLowerDbContext.Database.GetPendingMigrations().Any())
+    {
+        higherOrLowerDbContext.Database.Migrate();
+    }
+}
 
 app.Run();
