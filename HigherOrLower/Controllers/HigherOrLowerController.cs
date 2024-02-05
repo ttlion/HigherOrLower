@@ -3,8 +3,6 @@ using HigherOrLower.Services;
 using HigherOrLower.Utils.Enums;
 using HigherOrLower.Utils.Wrappers;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace HigherOrLower.Controllers
 {
@@ -19,14 +17,14 @@ namespace HigherOrLower.Controllers
         }
 
         /// <summary>
-        /// Creates a new game
+        /// Create a new game
         /// </summary>
         /// <remarks>
         ///
         /// On success, API returns:
-        /// - Result: The new game created. It will contain the id that should be used to access the game, and the first card drawn.
         /// - IsError: false
         /// - Status: String indicating success
+        /// - Result: The new game created. It will contain the id that should be used to access the game, and the first card drawn.
         /// 
         /// On insucess, API returns:
         /// - IsError: true
@@ -42,22 +40,32 @@ namespace HigherOrLower.Controllers
         }
 
         /// <summary>
-        /// Tries to make a guess for the specified player
+        /// Try to make a guess for the specified player
         /// </summary>
         /// <remarks>
         /// 
-        /// blablabla 
+        /// The game starts with canAddNewPlayers = true (see GameInfo endpoint).
         /// 
-        /// explain thing of table being filled or not
+        /// The way of automatically adding a player to the game is by making a guess with a player name which is not in the player list of that game (while the canAddNewPlayers is true for that game).
         /// 
-        /// explain thing of being current player turn or not
+        /// While canAddNewPlayers is true, all players have their isCurrentPlayerToMove set to false, and there are two valid guesses:
+        /// - A guess for a player whose name is not already in the player's list: the guess is made and that player is added to the players list
+        /// - A guess for the first player of the game (the one with orderInGame = 1): only that player can close the "player cycle", in order for the game to be fair and ensure all players make a guess in the same order
         /// 
-        /// explain that cannot make move if game finished
+        /// The game assumes that there is a "player cycle", for the game to be fair.
+        /// 
+        /// In practice, if 3 players entered the game in the order PlayerA -> PlayerB -> PlayerC, then they should always guess in that order: 
+        /// 
+        /// A->B-C->A->B->C->A->B->C...
+        /// 
+        /// The game allows any number of players to join the game until the first player guesses a second time. In that moment, the list of players is closed, the game gets canAddNewPlayers = false, and only the player with isCurrentPlayerToMove = true is the one who can play.
+        /// 
+        /// If the game is finished, no player is allowed to make any guess.
         ///
         /// On success, API returns:
-        /// - Result: The result of the guess and the game updated, which includes the new card drawn.
         /// - IsError: false
         /// - Status: String indicating success
+        /// - Result: The result of the guess and the game updated, which includes the new card drawn.
         /// 
         /// On insucess, API returns:
         /// - IsError: true
@@ -73,18 +81,14 @@ namespace HigherOrLower.Controllers
         }
 
         /// <summary>
-        /// Gets the relevant game info, including a list of the players and their scores
+        /// Get relevant game info, including a list of the players and their scores
         /// </summary>
         /// <remarks>
         /// 
-        /// blablabla 
-        /// 
-        /// explain all fields?
-        ///
         /// On success, API returns:
-        /// - Result: All info about the game, including a list of the players and their scores
         /// - IsError: false
         /// - Status: String indicating success
+        /// - Result: All info about the game, including a list of the players and their scores
         /// 
         /// On insucess, API returns:
         /// - IsError: true
