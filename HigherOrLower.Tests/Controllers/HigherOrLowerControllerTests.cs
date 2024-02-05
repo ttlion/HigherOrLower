@@ -9,9 +9,7 @@ using HigherOrLower.Repositories.Cards;
 using HigherOrLower.Repositories.Games;
 using HigherOrLower.Services;
 using HigherOrLower.Utils.Enums;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace HigherOrLower.Tests.Controllers
@@ -123,8 +121,12 @@ namespace HigherOrLower.Tests.Controllers
         [Fact]
         public void CreatingGameReturnsNewGameInfoWithAnExistingCardDrawn()
         {
-            var gameInfo = ParseJsonResult<GameInfoDto>(_controller.NewGame());
+            var output = _controller.NewGame();
 
+            output.IsError.Should().BeFalse();
+            output.Status.Should().Be("Success creating new game");
+
+            var gameInfo = output.Result;
             gameInfo.GameId.Should().Be(_maxDisplayIdOnOriginalDb + 1);
             _deck.Select(x => x.Name).Should().Contain(gameInfo.CurrentCard);
             gameInfo.CanAddNewPlayers.Should().BeTrue();
@@ -135,31 +137,44 @@ namespace HigherOrLower.Tests.Controllers
         public void ErrorWhenTryingToMakeGuessForNonExistingGame()
         {
             var nonExistingGameDisplayId = 876;
-            var error = ParseJsonResult<TestClassWithErrorMessage>(_controller.Guess(nonExistingGameDisplayId, "Dummy1", Guess.Higher));
-            error.Message.Should().Be($"Cannot make guess because game {nonExistingGameDisplayId} does not exist");
+            var output = _controller.Guess(nonExistingGameDisplayId, "Dummy1", Guess.Higher);
+
+            output.IsError.Should().BeTrue();
+            output.Status.Should().Be($"Cannot make guess because game {nonExistingGameDisplayId} does not exist");
+            ValidateHasDefaultValues(output.Result);
         }
 
         [Fact]
         public void ErrorWhenTryingToMakeGuessForFinishedGame()
         {
-            var error = ParseJsonResult<TestClassWithErrorMessage>(_controller.Guess(_gameDisplayIdOfGameAlreadyFinished, "Dummy1", Guess.Higher));
-            error.Message.Should().Be($"Cannot make guess because game {_gameDisplayIdOfGameAlreadyFinished} is already finished (check GameInfo endpoint)");
+            var output = _controller.Guess(_gameDisplayIdOfGameAlreadyFinished, "Dummy1", Guess.Higher);
+
+            output.IsError.Should().BeTrue();
+            output.Status.Should().Be($"Cannot make guess because game {_gameDisplayIdOfGameAlreadyFinished} is already finished (check GameInfo endpoint)");
+            ValidateHasDefaultValues(output.Result);
         }
 
         [Fact]
         public void ErrorWhenTryingToMakeGuessByClosingTableWithWrongPlayer()
         {
             var playerName = "Mary";
-            var error = ParseJsonResult<TestClassWithErrorMessage>(_controller.Guess(_gameDisplayIdOfGameWhereCanAddNewPlayers, playerName, Guess.Higher));
-            error.Message.Should().Be($"Cannot make guess because table {playerName} is already playing, but it is not the one that should close the table cycle to start the 2nd round of guesses (check GameInfo endpoint)");
+            var output = _controller.Guess(_gameDisplayIdOfGameWhereCanAddNewPlayers, playerName, Guess.Higher);
+
+            output.IsError.Should().BeTrue();
+            output.Status.Should().Be($"Cannot make guess because table {playerName} is already playing, but it is not the one that should close the table cycle to start the 2nd round of guesses (check GameInfo endpoint)");
+            ValidateHasDefaultValues(output.Result);
         }
 
         [Fact]
         public void ClosingTableByMakingGuessWithProperPlayer()
         {
             var playerName = "John";
-            var gameInfoWithGuessResultDto = ParseJsonResult<GameInfoWithGuessResultDto>(_controller.Guess(_gameDisplayIdOfAnotherGameWhereCanAddNewPlayers, playerName, Guess.Higher));
+            var output = _controller.Guess(_gameDisplayIdOfAnotherGameWhereCanAddNewPlayers, playerName, Guess.Higher);
 
+            output.IsError.Should().BeFalse();
+            output.Status.Should().Be("Success making guess");
+
+            var gameInfoWithGuessResultDto = output.Result;
             gameInfoWithGuessResultDto.GuessResult.Should().BeOneOf(GuessResult.Correct, GuessResult.Incorrect); // There is a unit test to check the proper value (for the case there is only 1 card left, that is deterministic, here it is not)
             gameInfoWithGuessResultDto.GameId.Should().Be(_gameDisplayIdOfAnotherGameWhereCanAddNewPlayers);
             _deck.Select(x => x.Name).Should().Contain(gameInfoWithGuessResultDto.CurrentCard);
@@ -171,12 +186,18 @@ namespace HigherOrLower.Tests.Controllers
         public void ErrorWhenTryingToMakeGuessBecauseItIsAnotherPlayersTurn()
         {
             var playerName = "Mario";
-            var error = ParseJsonResult<TestClassWithErrorMessage>(_controller.Guess(_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Higher));
-            error.Message.Should().Be($"Cannot make guess because it is not {playerName}'s turn in game {_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn} (check GameInfo endpoint)");
+            var output = _controller.Guess(_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Higher);
+
+            output.IsError.Should().BeTrue();
+            output.Status.Should().Be($"Cannot make guess because it is not {playerName}'s turn in game {_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn} (check GameInfo endpoint)");
+            ValidateHasDefaultValues(output.Result);
 
             playerName = "Spencer";
-            error = ParseJsonResult<TestClassWithErrorMessage>(_controller.Guess(_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Higher));
-            error.Message.Should().Be($"Cannot make guess because it is not {playerName}'s turn in game {_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn} (check GameInfo endpoint)");
+            output = _controller.Guess(_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Higher);
+
+            output.IsError.Should().BeTrue();
+            output.Status.Should().Be($"Cannot make guess because it is not {playerName}'s turn in game {_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn} (check GameInfo endpoint)");
+            ValidateHasDefaultValues(output.Result);
         }
 
         [Fact]
@@ -187,12 +208,18 @@ namespace HigherOrLower.Tests.Controllers
             var expectedGuessResult = GuessResult.Incorrect;
    
             var playerName = "Joan";
-            
-            var gameInfoWithGuessResultDto = ParseJsonResult<GameInfoWithGuessResultDto>(_controller.Guess(_gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Higher));
-            ValidateGameInfoWithGuessResultDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(gameInfoWithGuessResultDto, expectedGuessResult, _gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn);
-            
-            var gameInfoWithPlayersInfoDto = ParseJsonResult<GameInfoWithPlayersInfoDto>(_controller.GameInfo(_gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn));
-            ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(gameInfoWithPlayersInfoDto, _gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, guessResult: expectedGuessResult);
+
+            var guessOutput = _controller.Guess(_gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Higher);
+
+            guessOutput.IsError.Should().BeFalse();
+            guessOutput.Status.Should().Be("Success making guess");
+            ValidateGameInfoWithGuessResultDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(guessOutput.Result, expectedGuessResult, _gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn);
+
+            var infoOutput = _controller.GameInfo(_gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn);
+
+            infoOutput.IsError.Should().BeFalse();
+            infoOutput.Status.Should().Be("Success getting game info");
+            ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(infoOutput.Result, _gameDisplayIdOfAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, guessResult: expectedGuessResult);
 
         }
 
@@ -205,29 +232,60 @@ namespace HigherOrLower.Tests.Controllers
             
             var playerName = "Joan";
 
-            var gameInfoWithGuessResultDto = ParseJsonResult<GameInfoWithGuessResultDto>(_controller.Guess(_gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Lower));
-            ValidateGameInfoWithGuessResultDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(gameInfoWithGuessResultDto, expectedGuessResult, _gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn);
+            var guessOutput = _controller.Guess(_gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, playerName, Guess.Lower);
 
-            var gameInfoWithPlayersInfoDto = ParseJsonResult<GameInfoWithPlayersInfoDto>(_controller.GameInfo(_gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn));
-            ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(gameInfoWithPlayersInfoDto, _gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, guessResult: expectedGuessResult);
+            guessOutput.IsError.Should().BeFalse();
+            guessOutput.Status.Should().Be("Success making guess");
+            ValidateGameInfoWithGuessResultDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(guessOutput.Result, expectedGuessResult, _gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn);
+
+            var infoOutput = _controller.GameInfo(_gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn);
+
+            infoOutput.IsError.Should().BeFalse();
+            infoOutput.Status.Should().Be("Success getting game info");
+            ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(infoOutput.Result, _gameDisplayIdOfYetAnotherGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, guessResult: expectedGuessResult);
         }
 
         [Fact]
         public void ErrorTryingToGetGameInfoOfNonExistingGame()
         {
             var gameId = 999;
-            var error = ParseJsonResult<TestClassWithErrorMessage>(_controller.GameInfo(gameId));
-            error.Message.Should().Be($"Cannot get game info because game {gameId} does not exist");
+            var output = _controller.GameInfo(gameId);
+
+            output.IsError.Should().BeTrue();
+            output.Status.Should().Be($"Cannot get game info because game {gameId} does not exist");
+            ValidateHasDefaultValues(output.Result);
         }
 
         [Fact]
         public void SucessGettingGameInfo()
         {
-            var gameInfoWithPlayersInfoDto = ParseJsonResult<GameInfoWithPlayersInfoDto>(_controller.GameInfo(_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn));
-            ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(gameInfoWithPlayersInfoDto, _gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, isAfterPlaying: false);
+            var output = _controller.GameInfo(_gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn);
+
+            output.IsError.Should().BeFalse();
+            output.Status.Should().Be("Success getting game info");
+            ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(output.Result, _gameDisplayIdOfGameWithSeveralPlayersAndScorresAndIsSomeonesTurn, isAfterPlaying: false);
         }
 
-        private void ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(GameInfoWithPlayersInfoDto gameInfoWithPlayersInfoDto, int gameId, bool isAfterPlaying = true, GuessResult guessResult = GuessResult.Correct)
+        private static void ValidateHasDefaultValues(GameInfoDto result)
+        {
+            result.GameId.Should().Be(-1);
+            result.CurrentCard.Should().BeEmpty();
+            result.CanAddNewPlayers.Should().BeFalse();
+            result.IsGameFinished.Should().BeFalse();
+        }
+
+        private static void ValidateHasDefaultValues(GameInfoWithGuessResultDto result)
+        {
+            result.GuessResult.Should().Be(GuessResult.Incorrect);
+            ValidateHasDefaultValues((GameInfoDto)result);
+        }
+
+        private static void ValidateHasDefaultValues(GameInfoWithPlayersInfoDto result)
+        {
+            result.Players.Should().BeEmpty();
+            ValidateHasDefaultValues((GameInfoDto)result);
+        }
+        private static void ValidateGameInfoWithPlayersInfoDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(GameInfoWithPlayersInfoDto gameInfoWithPlayersInfoDto, int gameId, bool isAfterPlaying = true, GuessResult guessResult = GuessResult.Correct)
         {
             gameInfoWithPlayersInfoDto.GameId.Should().Be(gameId);
             _deck.Select(x => x.Name).Should().Contain(gameInfoWithPlayersInfoDto.CurrentCard);
@@ -252,7 +310,7 @@ namespace HigherOrLower.Tests.Controllers
             thirdPlayer.IsCurrentPlayerToMove.Should().BeFalse();
         }
 
-        private void ValidateGameInfoWithGuessResultDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(GameInfoWithGuessResultDto gameInfoWithGuessResultDto, GuessResult guessResult, int gameId)
+        private static void ValidateGameInfoWithGuessResultDtoForGameWithSeveralPlayersAndScorresAndIsSomeonesTurn(GameInfoWithGuessResultDto gameInfoWithGuessResultDto, GuessResult guessResult, int gameId)
         {
             gameInfoWithGuessResultDto.GuessResult.Should().BeOneOf(guessResult);
             gameInfoWithGuessResultDto.GameId.Should().Be(gameId);
@@ -260,16 +318,5 @@ namespace HigherOrLower.Tests.Controllers
             gameInfoWithGuessResultDto.CanAddNewPlayers.Should().BeFalse();
             gameInfoWithGuessResultDto.IsGameFinished.Should().BeTrue();
         }
-
-        private static T ParseJsonResult<T>(ActionResult result)
-        {
-            return JsonConvert.DeserializeObject<T>(((OkObjectResult) result).Value.ToString());
-        } 
-
-        private class TestClassWithErrorMessage
-        {
-            public string Message { get; set; }
-        }
-
     }
 }

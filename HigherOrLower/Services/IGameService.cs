@@ -1,13 +1,15 @@
-﻿using HigherOrLower.Utils.Enums;
+﻿using HigherOrLower.Dtos;
+using HigherOrLower.Utils.Enums;
+using HigherOrLower.Utils.Wrappers;
 
 namespace HigherOrLower.Services
 {
     public interface IGameService
     {
-        string CreateNewGame();
+        IResultWithStatus<GameInfoDto, string> CreateNewGame();
 
-        public string TryEvaluateGuess(int gameDisplayId, string playerName, Guess guess);
-     
-        public string GetGameInfo(int gameDisplayId);
+        IResultWithStatus<GameInfoWithGuessResultDto, string> TryEvaluateGuess(int gameDisplayId, string playerName, Guess guess);
+
+        IResultWithStatus<GameInfoWithPlayersInfoDto, string> GetGameInfo(int gameDisplayId);
     }
 }

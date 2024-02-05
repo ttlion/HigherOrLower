@@ -4,11 +4,11 @@ namespace HigherOrLower.Dtos
 {
     public class GameInfoWithGuessResultDto : GameInfoDto
     {
-        public GuessResult GuessResult { get; set; }
+        public GuessResult GuessResult { get; set; } = GuessResult.Incorrect;
 
         public GameInfoWithGuessResultDto() : base() 
         {
-            
+
         }
 
         public GameInfoWithGuessResultDto(int id, string currentCard, bool canAddNewPlayers, bool isGameFinished, GuessResult guessResult) : base(id, currentCard, canAddNewPlayers, isGameFinished)

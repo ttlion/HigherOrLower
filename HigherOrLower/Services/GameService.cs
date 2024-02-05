@@ -1,6 +1,6 @@
-﻿using HigherOrLower.Engines;
+﻿using HigherOrLower.Dtos;
+using HigherOrLower.Engines;
 using HigherOrLower.Utils.Enums;
-using HigherOrLower.Utils.Extensions;
 using HigherOrLower.Utils.Wrappers;
 
 namespace HigherOrLower.Services
@@ -14,28 +14,29 @@ namespace HigherOrLower.Services
             _gameEngine = gameEngine;
         }
 
-        public string CreateNewGame()
+        public IResultWithStatus<GameInfoDto, string> CreateNewGame()
         {
             var resultWithStatus = _gameEngine.CreateNewGame();
-            return ResultWithStatusToResultString(resultWithStatus, ErrorStatusToMessage(resultWithStatus.Status));
+            return ResultWithEnumStatusToResultWithString(resultWithStatus, "Success creating new game", ErrorStatusToMessage(resultWithStatus.Status));
         }
 
-        public string TryEvaluateGuess(int gameDisplayId, string playerName, Guess guess)
+        public IResultWithStatus<GameInfoWithGuessResultDto, string> TryEvaluateGuess(int gameDisplayId, string playerName, Guess guess)
         {
             var resultWithStatus = _gameEngine.TryDrawNextCardAndEvaluateGuess(gameDisplayId, playerName, guess);
-            return ResultWithStatusToResultString(resultWithStatus, ErrorStatusToMessage(resultWithStatus.Status, gameDisplayId, playerName));
+            return ResultWithEnumStatusToResultWithString(resultWithStatus, "Success making guess", ErrorStatusToMessage(resultWithStatus.Status, gameDisplayId, playerName));
         }
 
-        public string GetGameInfo(int gameDisplayId)
+        public IResultWithStatus<GameInfoWithPlayersInfoDto, string> GetGameInfo(int gameDisplayId)
         {
             var resultWithStatus = _gameEngine.TryGetGameInfo(gameDisplayId);
-            return ResultWithStatusToResultString(resultWithStatus, ErrorStatusToMessage(resultWithStatus.Status, gameDisplayId));
+            return ResultWithEnumStatusToResultWithString(resultWithStatus, "Success getting game info", ErrorStatusToMessage(resultWithStatus.Status, gameDisplayId));
         }
 
-        private string ResultWithStatusToResultString<T,U>(IResultWithStatus<T, U> resultWithStatus, string errorMessage) where T : new()
+        private IResultWithStatus<T, string> ResultWithEnumStatusToResultWithString<T,U>(IResultWithStatus<T, U> resultWithStatus, string successMessage, string errorMessage) where T : new()
         {
-            return resultWithStatus.IsError ? errorMessage.ToJsonMessage() : resultWithStatus.Result.ToJson();
-
+            return resultWithStatus.IsError
+                ? ResultWithStatus<T, string>.Error(errorMessage)
+                : ResultWithStatus<T, string>.Success(resultWithStatus.Result, successMessage);
         }
 
         private static string ErrorStatusToMessage(CreateNewGameStatus createNewGameStatus)
