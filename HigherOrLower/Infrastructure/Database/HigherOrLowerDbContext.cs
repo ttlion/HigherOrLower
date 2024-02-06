@@ -1,8 +1,6 @@
 ﻿using HigherOrLower.Entities.Cards;
 using HigherOrLower.Entities.Games;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace HigherOrLower.Infrastructure.Database
 {

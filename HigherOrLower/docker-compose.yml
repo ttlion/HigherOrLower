@@ -1,0 +1,23 @@
+services:
+    sql:
+        image: "mcr.microsoft.com/mssql/server:2022-latest"
+        container_name: sql_server2022
+        environment:
+          - ACCEPT_EULA=y
+          - SA_PASSWORD=A&VeryComplex@123Password(ABCDEFGHI)
+        healthcheck: # I even know about docker healthchecks :)
+          test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -Q "SELECT 1" -b -o /dev/null
+          interval: 10s
+          timeout: 3s
+          retries: 10
+          start_period: 20s
+    web_api:
+        build: .
+        depends_on:
+            sql:
+                condition: service_healthy
+                required: true
+        image: higher_or_lower
+        container_name: higher_or_lower_web_api
+        ports:
+            - "8080:8080"

@@ -35,13 +35,18 @@ builder.Services.AddScoped<IGameService, GameService>();
 
 var app = builder.Build();
 
-app.UseSwagger();
+var rootEndpointSwagger = "higherOrLower";
+
+app.UseSwagger(options =>
+{
+    options.RouteTemplate = $"{rootEndpointSwagger}/{{documentname}}/swagger.json";
+});
 app.UseSwaggerUI(options =>
 {
     options.DefaultModelsExpandDepth(-1);
+    options.RoutePrefix = $"{rootEndpointSwagger}";
 });
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
