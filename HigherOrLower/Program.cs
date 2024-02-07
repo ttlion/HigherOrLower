@@ -1,3 +1,4 @@
+using HigherOrLower.Documentation;
 using HigherOrLower.Engines;
 using HigherOrLower.Infrastructure.Database;
 using HigherOrLower.Repositories.Cards;
@@ -22,8 +23,8 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Version = "v1",
-        Title = "aaa",
-        Description = "bb"
+        Title = GameIntro.GameTitle,
+        Description = GameIntro.GameDescription
     });
 });
 
