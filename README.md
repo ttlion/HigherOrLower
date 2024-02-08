@@ -3,7 +3,8 @@
 
 The game was developed using .NET 8. It uses Entity Framework Core 8.0 as the ORM.
 
-The (API + DB) is available in a docker, there are two ways of running it:
+The (API + DB) is available in a docker.
+After pulling the repo, navigate to the *HigherOrLower* directory (where the DockerFile and the docker-compose-***.yml files are. From there, there are two ways of running the API:
 1. To locally build the .NET solution and create its Docker image, and then run the docker, run:
 > docker-compose -f docker-compose-building-locally.yml up --build
 
